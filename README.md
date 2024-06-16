@@ -132,7 +132,7 @@ Refer to [FFmpeg documentation](https://ffmpeg.org/ffmpeg.html#toc-Main-options)
 
 ### Deinterlace
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format       |  Default  | Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format       |  Default  | Description           |
 | --- | --- | --- | --- |
 | `--deint`         | `nnedi`, `bob`, `bwdif`, `decomb`, `estdif`, `kerneldeint`, `mcdeint`, `w3fdif`, `yadif` | none | Algorithm used to deinterlace the input video  |
 | `--deint_params` | str | `yadif` | Arguments passed to the filter. Refer to the [FFmpeg documentation](https://ffmpeg.org/ffmpeg-filters.html) |
@@ -143,7 +143,7 @@ Refer to [FFmpeg documentation](https://ffmpeg.org/ffmpeg.html#toc-Main-options)
 
 #### Input
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format| Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format| Description           |
 | :---| :---: | :--- |
 | `--discard_sar`           |               | Remove the SAR from the video stream without any size modification. |
 | `--resize_with_sar`       |               | Use the SAR value to resize before the inference. SAR is removed from the video stream. |
@@ -158,7 +158,7 @@ Notes:
 
 #### Output
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format|  Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format|  Description           |
 | --- | --- | --- |
 | `--final_resize`      | `WxH`   | Resize the video to this dimension. The aspect ratio is conserved and borders are added if needed |
 | `--final_resize_to`   |  `480p`, `720p`, `1080p`, `2K`, `1440p`, `2160p`,`4K`  | Make it easier to choose the output resizing parameter |
@@ -174,7 +174,7 @@ Notes:
 #### Video encoding
 Refer to the [FFmpeg documentation](https://ffmpeg.org/ffmpeg-all.html) |
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Format        |  Default  | Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Format        |  Default  | Description           |
 | :--- | :---: | :---: | :--- |
 | `--encoder`     |  `h264`, `h265`, `ffv1`, `vp9`  | `h264`          |                |
 | `--pix_fmt`     |  rgb or yuv formats  |  `yuv420p`         |   recommended: `yuv420p`, `yuv420p10le`, `yuv420p12le`, `rgb24`, `rgb48`               |
@@ -187,7 +187,7 @@ Refer to the [FFmpeg documentation](https://ffmpeg.org/ffmpeg-all.html) |
 
 #### Audio
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description           |
 | :--- | :--- |
 | `--copy_audio`  | Copy the input audio stream to the output media. Warning: No copy will be done if one of the seek position or duration argument is used. Subtitles streams are also copied (experimental)|
 
