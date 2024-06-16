@@ -1,11 +1,11 @@
 # Pynference
 A tool to perform fast inference (PyTorch, TensorRT).<br/>
 Nvidia GPU only.<br/>
-**Currently Proprietary Software, Closed License**<br/>
+**Proprietary Software, Closed License**<br/>
 
 
 > [!IMPORTANT]
-> - This is the result of the design/implementation of a technical view of a system architecture: with a consumer grade Nvidia GPU, for video or batch of images, performing a PyTorch or TensorRT inference with python language is **fast**, sometimes even **[faster than some other tools coded in compiled language](./profiling.md)**.
+> With a consumer grade Nvidia GPU, for video or batch of images, performing a PyTorch or TensorRT inference with this tool is **fast**, even **[faster than some other tools coded in compiled language](./profiling.md)**. Explanations [here](./profiling.md).
 
 
 
@@ -13,13 +13,13 @@ Nvidia GPU only.<br/>
 > [!IMPORTANT]
 > Unless you have received a copy, you can't use this tool as it is currently not publicly released.
 
-Though, some modules and libraries are released as open source: [pynnlib](https://github.com/herlegon/pynnlib)
+Though, some modules and libraries are released as open source: [pynnlib]()
 
 ## Supported hardware/software
 - Windows 11
-- Limited support on Linux
+- Limited support on Linux: tested CPU inference only
 - Nvidia GPU card
-- Python 3.11
+- Python 3.12
 
 
 ## Installation
@@ -28,13 +28,16 @@ Though, some modules and libraries are released as open source: [pynnlib](https:
 
 - Create a conda environment
     ```
-    conda create env -n pynference python==3.11
+    conda create -n pynference python==3.12
     conda activate pynference
     ```
 
 - Install dependencies
     ```bash
     pip install -r .\requirements.txt
+    ```
+    ```bash
+    pip3 install --pre torch torchvision --index-url https://download.pytorch.org/whl/nightly/cu124
     ```
 
 - (optionnal) Upgrade an already created environnment
@@ -47,17 +50,17 @@ Though, some modules and libraries are released as open source: [pynnlib](https:
 
 - Perform the **inference with a PyTorch model**, using the CUDA device 0 (default) and fp16 datatype
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --cuda --fp16
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep pytorch
     ```
 
 - Perform the inference **using the TensorRT library**, using the CUDA device 0 (default) and fp16 datatype
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --trt --fp16
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep trt
     ```
 
-- Perform an inference and **copy all audio and subtitle tracks** to the output media file
+- Perform an inference and **copy audio track** to the output media file
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --trt --copy_audio
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep trt --copy_audio
     ```
 
     > [!CAUTION]
@@ -65,12 +68,12 @@ Though, some modules and libraries are released as open source: [pynnlib](https:
 
 - Perform an inference, **resize to 2K, use the SAR for the resize operation**, copy audio. The SAR value won't be set in the output video stream.
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --trt --fp16 --final_resize_to 2K --final_resize_with_sar --copy_audio
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep trt --final_resize_to 2K --final_resize_with_sar --copy_audio
     ```
 
 - **Deinterlace** the input video with customized parameters, perform an inference.
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --trt --deint nnedi --deint_params nsize=s8x6:nns=n128:qual=slow:etype=s:pscrn=new3
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep trt --deint nnedi --deint_params nsize=s8x6:nns=n128:qual=slow:etype=s:pscrn=new3
     ```
 
 ## Arguments
@@ -88,17 +91,15 @@ Though, some modules and libraries are released as open source: [pynnlib](https:
 
 | Argument&nbsp; | Options   |  Default  | Description           |
 | :--- | :---: | :---: | :--- |
-| `--cuda`       |  | | Use CUDA as the execution Provider    |
-| `--trt`       |  | | Use CUDA as the execution Provider    |
-| `--device_no` | `0 to ..`    | `0`    | CUDA device number used to perform the inference |
-| `--fp16`       |  |     | Use Half Datatype for inference and model conversion |
-| `--fp32`       |  |     | Use Full Datatype for inference and model conversion |
+| `--ep`       | `pytorch`, `trt` | `pytorch` | Execution Provider    |
+| `--device` | `cuda`, `cpu`    | `cuda`    | Device used to perform the inference |
+| `--fp`       | `fp16`, `fp32`   | `fp16`    | Datatype for the inference and model conversion. If not supported by the device, fallback to `fp32` |
 
 
 ### Options for the model conversion (PyTorch to TensorRT)
 Refer to the documenation of [trtexec](https://docs.nvidia.com/tao/tao-toolkit/text/trtexec_integration/index.html)
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Format    | Description   |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Format    | Description   |
 | :--- | :---: | :---|
 | `--opset`     | int   | ONNX opset version, default: `17`    |
 | `--min_size`  | `WxH`  | Mininum input video resolution. e.g. `640x480`  |
@@ -120,7 +121,7 @@ Refer to [FFmpeg documentation](https://ffmpeg.org/ffmpeg.html#toc-Main-options)
 
 ### Deinterlace
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format       |  Default  | Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format       |  Default  | Description           |
 | --- | --- | --- | --- |
 | `--deint`         | `nnedi`, `bob`, `bwdif`, `decomb`, `estdif`, `kerneldeint`, `mcdeint`, `w3fdif`, `yadif` | none | Algorithm used to deinterlace the input video  |
 | `--deint_params` | str | `yadif` | Arguments passed to the filter. Refer to the [FFmpeg documentation](https://ffmpeg.org/ffmpeg-filters.html) |
@@ -131,7 +132,7 @@ Refer to [FFmpeg documentation](https://ffmpeg.org/ffmpeg.html#toc-Main-options)
 
 #### Input
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format| Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format| Description           |
 | :---| :---: | :--- |
 | `--discard_sar`           |               | Remove the SAR from the video stream without any size modification. |
 | `--resize_with_sar`       |               | Use the SAR value to resize before the inference. SAR is removed from the video stream. |
@@ -146,7 +147,7 @@ Notes:
 
 #### Output
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format|  Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format|  Description           |
 | --- | --- | --- |
 | `--final_resize`      | `WxH`   | Resize the video to this dimension. The aspect ratio is conserved and borders are added if needed |
 | `--final_resize_to`   |  `480p`, `720p`, `1080p`, `2K`, `1440p`, `2160p`,`4K`  | Make it easier to choose the output resizing parameter |
@@ -162,7 +163,7 @@ Notes:
 #### Video encoding
 Refer to the [FFmpeg documentation](https://ffmpeg.org/ffmpeg-all.html) |
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Format        |  Default  | Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Format        |  Default  | Description           |
 | :--- | :---: | :---: | :--- |
 | `--encoder`     |  `h264`, `h265`, `ffv1`, `vp9`  | `h264`          |                |
 | `--pix_fmt`     |  rgb or yuv formats  |  `yuv420p`         |   recommended: `yuv420p`, `yuv420p10le`, `yuv420p12le`, `rgb24`, `rgb48`               |
@@ -175,21 +176,21 @@ Refer to the [FFmpeg documentation](https://ffmpeg.org/ffmpeg-all.html) |
 
 #### Audio
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description           |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description           |
 | :--- | :--- |
-| `--copy_audio`  | Copy all audio and subtitle streams to the output media. Warning: not supported if one of the seek position or duration argument is used. Use [MKVToolNix](https://mkvtoolnix.download/) for multiplexing mkv files|
+| `--copy_audio`  | Copy the input audio stream to the output media. Warning: No copy will be done if one of the seek position or duration argument is used. Subtitles streams are also copied (experimental)|
 
 
 ## Not yet supported
 - Inference with an ONNX model
-- DirectML as the execution provider
 - Conversion of the colorspace to BT.709 (Rec. 709)
 - Customized input and output FFMpeg video filters
 - Customized FFMpeg output video arguments
 
 
 ## Won't support
-- Execution providers: NCNN, AMD GPU, CPU
+- NCNN
+- AMD GPU
 - Debug other containers than `.mkv`
-- Transcode/copy audio streams when any seek position argument is used. Use another tool to merge audio and video streams: [MKVToolNix](https://mkvtoolnix.download/), [FFmpeg](https://ffmpeg.org/), ...
+- Transcode/copy audio streams when any seek position argument is used. Use another tool to merge audio and video streams: MKVToolNix, FFmpeg, ...
 
