@@ -20,20 +20,26 @@ Though, some modules and libraries are released as open source: [pynnlib]()
 - Limited support on Linux: tested CPU inference only
 - Nvidia GPU card
 - Python 3.12
+- Nvidia GPU driver: 552.22 or later
 
 
 ## Installation
+- **Cuda 12.4 toolkit**
+https://developer.nvidia.com/cuda-12-4-0-download-archive?target_os=Windows&target_arch=x86_64&target_version=11
+
+
 > [!TIP]
 > It is recommended to use the [miniconda distribution](https://docs.anaconda.com/free/miniconda/index.html) to create a separate python environment from the system python.
 
-- Create a conda environment
+- **Create a conda environment**
     ```
     conda create -n pynference python==3.12
     conda activate pynference
     ```
 
-- Install dependencies
+- **Dependencies**
     ```bash
+    pip install --upgrade pip
     pip install -r .\requirements.txt
     ```
     ```bash
@@ -44,6 +50,11 @@ Though, some modules and libraries are released as open source: [pynnlib]()
     ```bash
     pip install -r .\requirements.txt --upgrade`
     ```
+
+- **External tools**
+```sh
+python install.py
+```
 
 
 ## Basic usage: examples
@@ -63,8 +74,8 @@ Though, some modules and libraries are released as open source: [pynnlib]()
     python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep trt --copy_audio
     ```
 
-    > [!CAUTION]
-    > The audio stream is copied only if no seek positon arguments is used.
+> [!CAUTION]
+> The audio stream is copied only if no seek positon arguments is used.
 
 - Perform an inference, **resize to 2K, use the SAR for the resize operation**, copy audio. The SAR value won't be set in the output video stream.
     ```bash
