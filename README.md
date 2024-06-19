@@ -13,7 +13,7 @@ Nvidia GPU only.<br/>
 > [!IMPORTANT]
 > Unless you have received a copy, you can't use this tool as it is currently not publicly released.
 
-Though, some modules and libraries are released as open source: [pynnlib]()
+Though, some modules and libraries are released as open source: [pynnlib](https://github.com/herlegon/pynnlib)
 
 ## Supported hardware/software
 - Windows 11
@@ -61,17 +61,17 @@ python install.py
 
 - Perform the **inference with a PyTorch model**, using the CUDA device 0 (default) and fp16 datatype
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep pytorch
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --cuda --fp16
     ```
 
 - Perform the inference **using the TensorRT library**, using the CUDA device 0 (default) and fp16 datatype
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep trt
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --trt --fp16
     ```
 
-- Perform an inference and **copy audio track** to the output media file
+- Perform an inference and **copy all audio and subtitle tracks** to the output media file
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep trt --copy_audio
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --trt --copy_audio
     ```
 
 > [!CAUTION]
@@ -79,12 +79,12 @@ python install.py
 
 - Perform an inference, **resize to 2K, use the SAR for the resize operation**, copy audio. The SAR value won't be set in the output video stream.
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep trt --final_resize_to 2K --final_resize_with_sar --copy_audio
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --trt --fp16 --final_resize_to 2K --final_resize_with_sar --copy_audio
     ```
 
 - **Deinterlace** the input video with customized parameters, perform an inference.
     ```bash
-    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --ep trt --deint nnedi --deint_params nsize=s8x6:nns=n128:qual=slow:etype=s:pscrn=new3
+    python pynference.py --input in_video.mkv --output out_video.mkv --model model.pth --trt --deint nnedi --deint_params nsize=s8x6:nns=n128:qual=slow:etype=s:pscrn=new3
     ```
 
 ## Arguments
@@ -102,15 +102,17 @@ python install.py
 
 | Argument&nbsp; | Options   |  Default  | Description           |
 | :--- | :---: | :---: | :--- |
-| `--ep`       | `pytorch`, `trt` | `pytorch` | Execution Provider    |
-| `--device` | `cuda`, `cpu`    | `cuda`    | Device used to perform the inference |
-| `--fp`       | `fp16`, `fp32`   | `fp16`    | Datatype for the inference and model conversion. If not supported by the device, fallback to `fp32` |
+| `--cuda`       |  | | Use CUDA as the execution Provider    |
+| `--trt`       |  | | Use the TensorRT framework as the execution Provider   |
+| `--device_no` | `0 to ..`    | `0`    | CUDA device number used to perform the inference |
+| `--fp16`       |  |     | Use Half Datatype for inference and model conversion |
+| `--fp32`       |  |     | Use Full Datatype for inference and model conversion |
 
 
 ### Options for the model conversion (PyTorch to TensorRT)
 Refer to the documenation of [trtexec](https://docs.nvidia.com/tao/tao-toolkit/text/trtexec_integration/index.html)
 
-| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Format    | Description   |
+| Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Format    | Description   |
 | :--- | :---: | :---|
 | `--opset`     | int   | ONNX opset version, default: `17`    |
 | `--min_size`  | `WxH`  | Mininum input video resolution. e.g. `640x480`  |
@@ -161,7 +163,7 @@ Notes:
 | Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Options/format|  Description           |
 | --- | --- | --- |
 | `--final_resize`      | `WxH`   | Resize the video to this dimension. The aspect ratio is conserved and borders are added if needed |
-| `--final_resize_to`   |  `480p`, `720p`, `1080p`, `2K`, `1440p`, `2160p`,`4K`  | Make it easier to choose the output resizing parameter |
+| `--final_resize_to`   |  `480p`, `576p`, `720p`, `1080p`, `2K`, `1440p`, `2160p`,`4K`  | Make it easier to choose the output resizing parameter |
 | `--final_resize_with_sar` |    | If used, the output video is resized accordingly with the SAR. Has no effect when `--final_resize` is used.  |
 | `--final_resize_algo` |  `bilinear`, `lanczos`, `bicubic`, `fast_bilinear`, `area`, `neighbor`, `bicublin`, `gauss`, `sinc`, `spline` | Algorithm used for the resize operations. Default: `bicubic` when upscaling, `lanczos` when downscaling |
 
@@ -189,7 +191,7 @@ Refer to the [FFmpeg documentation](https://ffmpeg.org/ffmpeg-all.html) |
 
 | Argument&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description           |
 | :--- | :--- |
-| `--copy_audio`  | Copy the input audio stream to the output media. Warning: No copy will be done if one of the seek position or duration argument is used. Subtitles streams are also copied (experimental)|
+| `--copy_audio`  | Copy all audio and subtitle streams to the output media. Warning: not supported if one of the seek position or duration argument is used. Use [MKVToolNix](https://mkvtoolnix.download/) for multiplexing mkv files|
 
 
 ## Not yet supported
@@ -200,8 +202,7 @@ Refer to the [FFmpeg documentation](https://ffmpeg.org/ffmpeg-all.html) |
 
 
 ## Won't support
-- NCNN
-- AMD GPU
+- Execution providers: NCNN, AMD GPU, CPU
 - Debug other containers than `.mkv`
-- Transcode/copy audio streams when any seek position argument is used. Use another tool to merge audio and video streams: MKVToolNix, FFmpeg, ...
+- Transcode/copy audio streams when any seek position argument is used. Use another tool to merge audio and video streams: [MKVToolNix](https://mkvtoolnix.download/), [FFmpeg](https://ffmpeg.org/), ...
 
